@@ -6,11 +6,13 @@ import lombok.*;
 
 import java.util.List;
 
-@Entity
+@Entity(name = "Cliente")
+@Table(name = "clientes")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @ToString(exclude = "produtos")
 public class Cliente {
 

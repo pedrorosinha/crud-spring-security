@@ -4,11 +4,13 @@ import br.com.dbserver.projeto_spring_security.domain.cliente.Cliente;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
+@Entity(name = "Produto")
+@Table(name = "produtos")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @ToString(exclude = "cliente")
 public class Produto {
 
