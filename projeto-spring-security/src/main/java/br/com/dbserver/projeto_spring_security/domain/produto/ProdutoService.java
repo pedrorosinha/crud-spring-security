@@ -1,5 +1,6 @@
 package br.com.dbserver.projeto_spring_security.domain.produto;
 
+import br.com.dbserver.projeto_spring_security.infra.exception.ProdutoNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,16 +32,14 @@ public class ProdutoService {
     }
 
     public void deleteById(Long id) {
+        if (!produtoRepository.existsById(id)) {
+            throw new ProdutoNotFoundException("Produto com ID " + id + " não encontrado.");
+        }
         produtoRepository.deleteById(id);
     }
 
     private ProdutoDTO convertToDTO(Produto produto) {
-        return new ProdutoDTO(
-                produto.getId(),
-                produto.getNome(),
-                produto.getPreco(),
-                produto.getCliente() != null ? produto.getCliente().getId() : null
-        );
+        return new ProdutoDTO(produto.getId(), produto.getNome(), produto.getPreco(), produto.getCliente().getId());
     }
 
     private Produto convertToEntity(ProdutoDTO produtoDTO) {
