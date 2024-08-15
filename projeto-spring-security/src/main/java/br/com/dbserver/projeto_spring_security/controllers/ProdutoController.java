@@ -12,8 +12,12 @@ import java.util.List;
 @RequestMapping("/produtos")
 public class ProdutoController {
 
+    private final ProdutoService produtoService;
+
     @Autowired
-    private ProdutoService produtoService;
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> cadastrar(@RequestBody ProdutoDTO produtoDTO) {

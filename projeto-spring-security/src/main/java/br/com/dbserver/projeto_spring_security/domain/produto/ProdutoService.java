@@ -1,6 +1,9 @@
 package br.com.dbserver.projeto_spring_security.domain.produto;
 
+import br.com.dbserver.projeto_spring_security.domain.cliente.Cliente;
+import br.com.dbserver.projeto_spring_security.domain.cliente.ClienteRepository;
 import br.com.dbserver.projeto_spring_security.infra.exception.ProdutoNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +14,15 @@ import java.util.stream.Collectors;
 @Service
 public class ProdutoService {
 
+    private final ProdutoRepository produtoRepository;
+
+    private final ClienteRepository clienteRepository;
+
     @Autowired
-    private ProdutoRepository produtoRepository;
+    public ProdutoService(ProdutoRepository produtoRepository, ClienteRepository clienteRepository) {
+        this.produtoRepository = produtoRepository;
+        this.clienteRepository = clienteRepository;
+    }
 
     public List<ProdutoDTO> findAll() {
         return produtoRepository.findAll().stream()
@@ -26,12 +36,19 @@ public class ProdutoService {
     }
 
     public ProdutoDTO save(ProdutoDTO produtoDTO) {
-        Produto produto = convertToEntity(produtoDTO);
+        Cliente cliente = clienteRepository.findById(produtoDTO.clienteId())
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+
+        Produto produto = new Produto();
+        produto.setNome(produtoDTO.nome());
+        produto.setPreco(produtoDTO.preco());
+        produto.setCliente(cliente);
+
         Produto savedProduto = produtoRepository.save(produto);
         return convertToDTO(savedProduto);
     }
 
-    public void deleteById(Long id) {
+        public void deleteById(Long id) {
         if (!produtoRepository.existsById(id)) {
             throw new ProdutoNotFoundException("Produto com ID " + id + " não encontrado.");
         }
@@ -39,14 +56,8 @@ public class ProdutoService {
     }
 
     private ProdutoDTO convertToDTO(Produto produto) {
-        return new ProdutoDTO(produto.getId(), produto.getNome(), produto.getPreco(), produto.getCliente().getId());
+        Long clienteId = (produto.getCliente() != null) ? produto.getCliente().getId() : null;
+        return new ProdutoDTO(produto.getId(), produto.getNome(), produto.getPreco(), clienteId);
     }
 
-    private Produto convertToEntity(ProdutoDTO produtoDTO) {
-        Produto produto = new Produto();
-        produto.setId(produtoDTO.id());
-        produto.setNome(produtoDTO.nome());
-        produto.setPreco(produtoDTO.preco());
-        return produto;
-    }
 }
